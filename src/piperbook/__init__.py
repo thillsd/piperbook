@@ -9,14 +9,15 @@ import shutil
 import subprocess
 import sys
 import threading
+import time
+import warnings
 from dataclasses import dataclass, field
-from multiprocessing import cpu_count
 from typing import List, Tuple
 
 import appdirs
+import bs4
 import ebooklib
 import typed_argparse as tap
-from bs4 import BeautifulSoup
 from ebooklib import epub
 from loguru import logger
 from mutagen.easyid3 import EasyID3
@@ -27,6 +28,8 @@ logger.add(
     format="<green>{time:HH:mm:ss}</green>\t{thread.name}\t{message}",
     level="INFO",
 )
+
+warnings.simplefilter('ignore', bs4.builder.XMLParsedAsHTMLWarning)
 
 
 @dataclass
@@ -67,23 +70,17 @@ def extract_chapters(epub_book: epub.EpubBook) -> List[Tuple[str, str]]:
             continue
 
         content = item.get_content()
-        soup = BeautifulSoup(content, features="lxml")
+        soup = bs4.BeautifulSoup(content, features="lxml")
         title = soup.title.string if soup.title else ""
         raw = soup.get_text(strip=False)
-        logger.debug(f"Raw text: <{raw[:]}>")
-
-        # Replace excessive whitespaces and newline characters based on the mode
-        cleaned_text = re.sub(r"\s+", " ", raw.strip())
-        logger.info(f"Cleaned text step 1: <{cleaned_text[:100]}>")
 
         # fill in the title if it's missing
         if not title:
-            title = cleaned_text[:60]
+            title = raw[:60]
         logger.debug(f"Raw title: <{title}>")
         title = sanitize_title(title)
-        logger.info(f"Sanitized title: <{title}>")
 
-        chapters.append((title, cleaned_text))
+        chapters.append((title, raw))
 
     return chapters
 
@@ -91,7 +88,7 @@ def extract_chapters(epub_book: epub.EpubBook) -> List[Tuple[str, str]]:
 def epub_to_audiobook(input_file: str, output_folder: str, voice: str, speed: str,
                       pause: str, chapter_start: int, chapter_end: int, cache_dir: str,
                       clobber: bool, processes: int) -> None:
-    book = epub.read_epub(input_file)
+    book = epub.read_epub(input_file, options={'ignore_ncx': True})
     chapters = extract_chapters(book)
 
     os.makedirs(output_folder, exist_ok=True)
@@ -165,6 +162,10 @@ def epub_to_audiobook(input_file: str, output_folder: str, voice: str, speed: st
 
     tts_queue.join()
 
+    # a weird interaction with redirecting subprocess stdout/stderr
+    # inside threads causes broken terminal without this
+    time.sleep(2)
+
 
 def worker(tts_queue: queue.Queue) -> None:
     while True:
@@ -218,7 +219,7 @@ def convert_chapter(job: RecordingJob) -> None:
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    os.remove(job.wav_filename)
+    os.remove(os.path.join(job.cache_dir, job.wav_filename))
     os.rename(os.path.join(job.cache_dir, job.mp3_filename),
               os.path.join(job.output_folder, job.mp3_filename))
 
@@ -226,7 +227,7 @@ def convert_chapter(job: RecordingJob) -> None:
 
 
 def tag_file(job: RecordingJob) -> None:
-    tag = EasyID3(job.mp3_filename)
+    tag = EasyID3(os.path.join(job.output_folder, job.mp3_filename))
     tag["artist"] = job.author
     tag["title"] = job.title
     tag["album"] = job.book_title
@@ -253,12 +254,12 @@ class Args(tap.TypedArgs):
     )
     speed: str = tap.arg(
         "-s",
-        default="1",
+        default="1.0",
         help="speed of the generated audio (lower is faster!)",
     )
     voice: str = tap.arg(
         "-v",
-        default="en_US-joe-medium",
+        default="en_US-ryan-high",
         help=
         "voice to use for the generated audio. To see valid options, see the docs for piper",
     )
@@ -274,8 +275,9 @@ class Args(tap.TypedArgs):
     )
     processes: int = tap.arg(
         "-j",
-        default=cpu_count() - 2,
-        help="number of processes to use",
+        default=2,
+        help=
+        "number of piper processes to use. Keep this value low--piper is threaded already.",
     )
 
 
