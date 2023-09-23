@@ -24,21 +24,26 @@ Supports voices models as listed on the [piper Readme](https://github.com/rhassp
 ## Usage
 
 ```
-usage: piperbook [-h] [--start START] [--end END] [--speed SPEED] [--voice VOICE] [--pause PAUSE] epub audiobook-folder
+usage: piperbook [-h] [--start START] [--end END] [-s SPEED] [-v VOICE] [-p PAUSE] [-c] epub audiobook-folder
 
 Convert epub file to audiobook directory of mp3s
 
 positional arguments:
-  epub              Epub file
-  audiobook-folder  Destination folder for the mp3 files
+  epub                  Epub file
+  audiobook-folder      Destination folder for the mp3 files
 
 options:
-  -h, --help        show this help message and exit
-  --start START     chapter to start from [default: 1]
-  --end END         chapter to finish at [default: -1]
-  --speed SPEED     speed of the generated audio (lower is faster!) [default: 1]
-  --voice VOICE     voice to use for the generated audio. To see valid options, see the docs for piper [default: en_US-joe-medium]
-  --pause PAUSE     length of pauses between sentences [default: 0.5]
+  -h, --help            show this help message and exit
+  --start START         chapter to start from [default: 1]
+  --end END             chapter to finish at [default: -1]
+  -s SPEED, --speed SPEED
+                        speed of the generated audio (lower is faster!) [default: 1]
+  -v VOICE, --voice VOICE
+                        voice to use for the generated audio. To see valid options, see the docs for piper [default:
+                        en_US-joe-medium]
+  -p PAUSE, --pause PAUSE
+                        length of pauses between sentences [default: 0.5]
+  -c, --clobber         overwrite existing files [default: False]
 ```
 
 ## Installation
