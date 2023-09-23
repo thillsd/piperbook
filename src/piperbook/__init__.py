@@ -40,6 +40,7 @@ class RecordingJob:
     file_name_prefix: str
     cache_dir: str
     output_folder: str
+    clobber: bool
 
     voice: str
     speed: str
@@ -97,6 +98,7 @@ def epub_to_audiobook(
     chapter_start: int,
     chapter_end: int,
     cache_dir: str,
+    clobber: bool
 ) -> None:
     book = epub.read_epub(input_file)
     chapters = extract_chapters(book)
@@ -158,6 +160,7 @@ def epub_to_audiobook(
                 voice=voice,
                 speed=speed,
                 pause=pause,
+                clobber=clobber,
             ))
 
     pool = [
@@ -190,6 +193,10 @@ def worker(tts_queue: queue.Queue) -> None:
 
 
 def convert_chapter(job: RecordingJob) -> None:
+    if os.path.exists(job.mp3_filename) and not job.clobber:
+        logger.info(f"Skipping {job.mp3_filename} because it already exists.")
+        return
+
     subprocess.run(
         [
             "piper",
@@ -252,17 +259,26 @@ class Args(tap.TypedArgs):
         help="chapter to finish at",
     )
     speed: str = tap.arg(
+        "-s",
         default="1",
         help="speed of the generated audio (lower is faster!)",
+        
     )
     voice: str = tap.arg(
+        "-v",
         default="en_US-joe-medium",
         help=
         "voice to use for the generated audio. To see valid options, see the docs for piper",
     )
     pause: str = tap.arg(
+        "-p",
         default="0.5",
         help="length of pauses between sentences",
+    )
+    clobber: bool = tap.arg(
+        "-c",
+        default=False,
+        help="overwrite existing files",
     )
 
 
@@ -310,6 +326,7 @@ def main(args: Args) -> None:
         speed=args.speed,
         pause=args.pause,
         cache_dir=cache_dir,
+        clobber=args.clobber,
     )
 
 
