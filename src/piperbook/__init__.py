@@ -98,7 +98,8 @@ def epub_to_audiobook(
     chapter_start: int,
     chapter_end: int,
     cache_dir: str,
-    clobber: bool
+    clobber: bool,
+    processes: int
 ) -> None:
     book = epub.read_epub(input_file)
     chapters = extract_chapters(book)
@@ -167,7 +168,7 @@ def epub_to_audiobook(
         threading.Thread(target=worker,
                          args=(tts_queue, ),
                          daemon=True,
-                         name=f"worker-{i}") for i in range(0, cpu_count())
+                         name=f"worker-{i}") for i in range(0, processes)
     ]
     for thread in pool:
         thread.start()
@@ -262,7 +263,6 @@ class Args(tap.TypedArgs):
         "-s",
         default="1",
         help="speed of the generated audio (lower is faster!)",
-        
     )
     voice: str = tap.arg(
         "-v",
@@ -280,7 +280,11 @@ class Args(tap.TypedArgs):
         default=False,
         help="overwrite existing files",
     )
-
+    processes: int = tap.arg(
+        "-j",
+        default=cpu_count() - 2,
+        help="number of processes to use",
+    )
 
 def main(args: Args) -> None:
     for executable in ("piper", "ffmpeg"):
@@ -327,6 +331,7 @@ def main(args: Args) -> None:
         pause=args.pause,
         cache_dir=cache_dir,
         clobber=args.clobber,
+        processes=args.processes,
     )
 
 
