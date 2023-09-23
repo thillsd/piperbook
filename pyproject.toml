@@ -1,0 +1,56 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project.scripts]
+piperbook = "piperbook:app.run"
+
+[project]
+name = "piperbook"
+version = "2023.9.23"
+authors = [{name = "Spencer T Royce, Esq.", email = "str.esq@protonmail.com"}]
+license = {file = "LICENSE"}
+description = "Uses piper-tts to convert epub files to audiobooks"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "beautifulsoup4==4.12.2",
+    "EbookLib==0.18",
+    "loguru==0.7.2",
+    "lxml==4.9.3",
+    "mutagen==1.47.0",
+    "piper-tts==1.2.0",
+    "typed-argparse==0.3.0",
+    "appdirs==1.4.4"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pylint ~=2.14.0",
+    "toml ~=0.10.2",
+    "yapf ~=0.32.0",
+]
+
+[tool.yapf]
+blank_line_before_nested_class_or_def = true
+column_limit = 88
+
+[tool.pylint]
+max-line-length = 88
+disable = [
+    "C0103", # (invalid-name)
+    "C0114", # (missing-module-docstring)
+    "C0115", # (missing-class-docstring)
+    "C0116", # (missing-function-docstring)
+    "R0903", # (too-few-public-methods)
+    "R0913", # (too-many-arguments)
+    "W0105", # (pointless-string-statement)
+]
+
