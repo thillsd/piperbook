@@ -8,7 +8,7 @@ $ piperbook -s 1.0 -p 0.5 -v "en_US-ryan-high" test.epub author/test
 19:55:27	MainThread	Converting chapters 1 to 5.
 19:55:35	worker-0	[✓] Wrote file 1_test_epub.mp3
 19:55:39	worker-1	[✓] Wrote file 2_test_epub.mp3
-19:58:12	worker-1  [✓] Wrote file 3_test_epub.mp3
+19:58:12	worker-1	[✓] Wrote file 3_test_epub.mp3
 19:59:27	worker-0	[✓] Wrote file 4_test_epub.mp3
 20:00:54	worker-1	[✓] Wrote file 5_test_epub.mp3
 20:00:56	MainThread	Cleaned up 0 from cache.
