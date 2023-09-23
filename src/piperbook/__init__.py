@@ -50,9 +50,8 @@ class RecordingJob:
     mp3_filename: str = field(init=False)
 
     def __post_init__(self):
-        self.wav_filename = os.path.join(self.cache_dir, self.file_name_prefix + ".wav")
-        self.mp3_filename = os.path.join(self.output_folder,
-                                         self.file_name_prefix + ".mp3")
+        self.wav_filename = self.file_name_prefix + ".wav"
+        self.mp3_filename = self.file_name_prefix + ".mp3"
 
 
 def sanitize_title(title: str) -> str:
@@ -89,18 +88,9 @@ def extract_chapters(epub_book: epub.EpubBook) -> List[Tuple[str, str]]:
     return chapters
 
 
-def epub_to_audiobook(
-    input_file: str,
-    output_folder: str,
-    voice: str,
-    speed: str,
-    pause: str,
-    chapter_start: int,
-    chapter_end: int,
-    cache_dir: str,
-    clobber: bool,
-    processes: int
-) -> None:
+def epub_to_audiobook(input_file: str, output_folder: str, voice: str, speed: str,
+                      pause: str, chapter_start: int, chapter_end: int, cache_dir: str,
+                      clobber: bool, processes: int) -> None:
     book = epub.read_epub(input_file)
     chapters = extract_chapters(book)
 
@@ -202,7 +192,7 @@ def convert_chapter(job: RecordingJob) -> None:
         [
             "piper",
             "--output_file",
-            job.wav_filename,
+            os.path.join(job.cache_dir, job.wav_filename),
             "--model",
             os.path.join(job.cache_dir, job.voice + ".onnx"),
             "--length-scale",
@@ -218,17 +208,19 @@ def convert_chapter(job: RecordingJob) -> None:
         [
             "ffmpeg",
             "-i",
-            job.wav_filename,
+            os.path.join(job.cache_dir, job.wav_filename),
             "-codec:a",
             "libmp3lame",
             "-b:a",
             "64k",
-            job.mp3_filename,
+            os.path.join(job.cache_dir, job.mp3_filename),
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     os.remove(job.wav_filename)
+    os.rename(os.path.join(job.cache_dir, job.mp3_filename),
+              os.path.join(job.output_folder, job.mp3_filename))
 
     tag_file(job)
 
@@ -286,6 +278,7 @@ class Args(tap.TypedArgs):
         help="number of processes to use",
     )
 
+
 def main(args: Args) -> None:
     for executable in ("piper", "ffmpeg"):
         if not shutil.which(executable):
@@ -298,10 +291,11 @@ def main(args: Args) -> None:
     cache_dir = appdirs.user_cache_dir("piperbook")
     os.makedirs(cache_dir, exist_ok=True)
 
-    # set hook to clean up wav files on fatal error
+    # set hook to clean up wav, mp3 files on fatal error
     def cleanup():
-        temp_files = glob.glob(os.path.join(cache_dir, "*wav"))
-        logger.info(f"Cleaning up {len(temp_files)} temporary wav files.")
+        temp_files = glob.glob(os.path.join(cache_dir, "*wav")) + glob.glob(
+            os.path.join(cache_dir, "*mp3"))
+        logger.info(f"Cleaned up {len(temp_files)} from cache.")
         for f in temp_files:
             os.remove(f)
 
