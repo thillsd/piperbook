@@ -43,10 +43,11 @@ options:
 
 ## Installation
 
+Tested on Debian 12.
+
 ```bash
 $ apt install python python-pip ffmpeg
-$ git clone https://github.com/thillsd/piperbook && cd piperbook
-$ pip install .
+$ pip install piperbook
 $ piperbook --help
 ```
 

@@ -38,6 +38,9 @@ dev = [
     "yapf ~=0.32.0",
 ]
 
+[project.urls]  # Optional
+"Homepage" = "https://github.com/thillsd/piperbook"
+
 [tool.yapf]
 blank_line_before_nested_class_or_def = true
 column_limit = 88
