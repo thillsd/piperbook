@@ -7,7 +7,7 @@ piperbook = "piperbook:app.run"
 
 [project]
 name = "piperbook"
-version = "2023.9.23"
+version = "2023.9.24"
 authors = [{name = "Spencer T Royce, Esq.", email = "str.esq@protonmail.com"}]
 license = {file = "LICENSE"}
 description = "Uses piper-tts to convert epub files to audiobooks"

@@ -3,19 +3,15 @@
 Converts an epub to a directory of mp3s using [piper-tts](https://pypi.org/project/piper-tts/).
 
 ```bash
-$ piperbook "Brandon, Sanderson - The Emperor's Soul.epub" "Sanderson, Brandon/The Emperor's Soul"
-$ tree "Sanderson, Brandon/The Emperor's Soul"
-.
-├── 01_by_Brandon_Sanderson_Ebook_edition_note_If_you_purchased_a.mp3
-├── 02_For_Lucie_Tuan_and_Sherry_Wang_who_provided_inspiration.mp3
-├── 03_Prologue.mp3
-├── 04_Gaotona_ran_his_fingers_across_the_thick_canvas_inspecting.mp3
-├── 05_Day_Two_Shai_pressed_her_fingernail_into_one_of_the_stone_bl.mp3
-├── 06_Day_Three_The_next_daybathed_well_fed_and_well_rested_for.mp3
-├── 07_Day_Five_Work_she_did_Shai_began_digging_through_accounts_o.mp3
-├── 08_Day_Twelve_Shai_pressed_her_stamp_down_on_the_tabletop_As_a.mp3
-├── 09_Day_Seventeen_A_cool_breeze_laden_with_unfamiliar_spices_cre.mp3
-...
+$ piperbook -s 1.0 -p 0.5 -v "en_US-ryan-high" test.epub author/test
+19:55:27	MainThread	Chapters count: 5.
+19:55:27	MainThread	Converting chapters 1 to 5.
+19:55:35	worker-0	[✓] Wrote file 1_test_epub.mp3
+19:55:39	worker-1	[✓] Wrote file 2_test_epub.mp3
+19:58:12	worker-1  [✓] Wrote file 3_test_epub.mp3
+19:59:27	worker-0	[✓] Wrote file 4_test_epub.mp3
+20:00:54	worker-1	[✓] Wrote file 5_test_epub.mp3
+20:00:56	MainThread	Cleaned up 0 from cache.
 ```
 
 Supports voices models as listed on the [piper Readme](https://github.com/rhasspy/piper)
@@ -24,8 +20,7 @@ Supports voices models as listed on the [piper Readme](https://github.com/rhassp
 ## Usage
 
 ```
-usage: piperbook [-h] [--start START] [--end END] [-s SPEED] [-v VOICE] [-p PAUSE] [-c] [-j PROCESSES]
-                 epub audiobook-folder
+usage: piperbook [-h] [--start START] [--end END] [-s SPEED] [-v VOICE] [-p PAUSE] [-c] [-j PROCESSES] epub audiobook-folder
 
 Convert epub file to audiobook directory of mp3s
 
@@ -38,15 +33,14 @@ options:
   --start START         chapter to start from [default: 1]
   --end END             chapter to finish at [default: -1]
   -s SPEED, --speed SPEED
-                        speed of the generated audio (lower is faster!) [default: 1]
+                        speed of the generated audio (lower is faster!) [default: 1.0]
   -v VOICE, --voice VOICE
-                        voice to use for the generated audio. To see valid options, see the docs for piper [default:
-                        en_US-joe-medium]
+                        voice to use for the generated audio. To see valid options, see the docs for piper [default: en_US-ryan-high]
   -p PAUSE, --pause PAUSE
                         length of pauses between sentences [default: 0.5]
   -c, --clobber         overwrite existing files [default: False]
   -j PROCESSES, --processes PROCESSES
-                        number of processes to use [default: 14]
+                        number of piper processes to use. Keep this value low--piper is threaded already. [default: 2]
 ```
 
 ## Installation
