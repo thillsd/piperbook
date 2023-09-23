@@ -24,7 +24,8 @@ Supports voices models as listed on the [piper Readme](https://github.com/rhassp
 ## Usage
 
 ```
-usage: piperbook [-h] [--start START] [--end END] [-s SPEED] [-v VOICE] [-p PAUSE] [-c] epub audiobook-folder
+usage: piperbook [-h] [--start START] [--end END] [-s SPEED] [-v VOICE] [-p PAUSE] [-c] [-j PROCESSES]
+                 epub audiobook-folder
 
 Convert epub file to audiobook directory of mp3s
 
@@ -44,6 +45,8 @@ options:
   -p PAUSE, --pause PAUSE
                         length of pauses between sentences [default: 0.5]
   -c, --clobber         overwrite existing files [default: False]
+  -j PROCESSES, --processes PROCESSES
+                        number of processes to use [default: 14]
 ```
 
 ## Installation
