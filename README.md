@@ -58,10 +58,11 @@ $ piperbook --help
 Chapter detection and naming is very imperfect. Patches welcome.
 
 
-## TODO
+## FAQ
 
-- m4b format support.
-- Use piper more intelligently
+> I want m4b support
+
+Either use [m4btool](https://github.com/sandreas/m4b-tool) or submit a patch.
 
 
 ## Credit

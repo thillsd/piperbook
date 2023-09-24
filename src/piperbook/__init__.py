@@ -259,7 +259,7 @@ class Args(tap.TypedArgs):
     )
     voice: str = tap.arg(
         "-v",
-        default="en_US-ryan-high",
+        default="en_US-lessac-high",
         help=
         "voice to use for the generated audio. To see valid options, see the docs for piper",
     )
